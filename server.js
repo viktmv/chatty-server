@@ -23,6 +23,11 @@ let counter = 0
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
+
+wss.broadcast = function broadcast(msg) {
+  wss.clients.forEach(c => c.send(JSON.stringify(msg)))
+}
+
 wss.on('connection', (ws) => {
   console.log('Client connected');
   counter++
@@ -34,14 +39,13 @@ wss.on('connection', (ws) => {
     ws.send(JSON.stringify({message, counter}))
   })
 
-  wss.clients.forEach(c => c.send(JSON.stringify({counter})))
+  wss.broadcast({counter})
+
   ws.on('message', function incoming(data) {
     let {message} = JSON.parse(data)
     let {type} = message
 
     message.id = uuidV4()
-
-    // if (!message.colour) message.colour = userColour
 
     if (type === 'postNotification') {
       message.type = 'incomingNotification'
@@ -52,17 +56,12 @@ wss.on('connection', (ws) => {
 
     messages.push(message)
 
-    wss.clients.forEach(function each(client) {
-      client.send(JSON.stringify({message}))
-    })
-    // }
+    wss.broadcast({message})
   })
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {
     console.log('Client disconnected')
     counter--
-    wss.clients.forEach(c => {
-        c.send(JSON.stringify({counter}))
-    })
+    wss.broadcast({counter})
   })
 })
