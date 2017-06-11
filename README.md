@@ -1,7 +1,7 @@
 Web Server for Chatty-App
 =====================
 ### Chatty-App Repo
-`https://github.com/viktmv/chattyapp`
+`https://github.com/viktmv/chatty-app`
 
 ### Usage
 
